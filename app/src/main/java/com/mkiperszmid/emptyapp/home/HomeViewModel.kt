@@ -5,13 +5,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.UUID
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val productService: ProductService
+) : ViewModel() {
     var state by mutableStateOf(HomeState())
         private set
+
+    init {
+        getProducts()
+    }
+
+    private fun getProducts() {
+        viewModelScope.launch {
+            try {
+                val products = productService.getProducts()
+                state = state.copy(
+                    products = products
+                )
+            } catch (e: Exception) {
+                //
+            }
+        }
+    }
 
     fun changeName(name: String) {
         state = state.copy(
@@ -26,7 +43,14 @@ class HomeViewModel : ViewModel() {
     }
 
     fun deleteProduct(product: Product) {
-
+        viewModelScope.launch {
+            try {
+                productService.deleteProduct(product.id)
+            } catch (e: Exception) {
+                println()
+            }
+            getProducts()
+        }
     }
 
     fun editProduct(product: Product) {
@@ -39,12 +63,22 @@ class HomeViewModel : ViewModel() {
 
     fun createProduct() {
         val product =
-            Product(
-                state.productId ?: UUID.randomUUID().toString(),
+            ProductDto(
                 state.productName,
                 state.productPrice.toDouble()
             )
-        // Insert
+        viewModelScope.launch {
+            try {
+                if (state.productId == null) {
+                    productService.insertProduct(product)
+                } else {
+                    productService.updateProduct(product, state.productId!!)
+                }
+            } catch (e: Exception) {
+                println()
+            }
+            getProducts()
+        }
         state = state.copy(
             productName = "",
             productPrice = "",
