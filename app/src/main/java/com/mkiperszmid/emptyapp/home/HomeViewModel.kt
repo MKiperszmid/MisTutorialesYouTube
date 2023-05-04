@@ -9,21 +9,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class HomeViewModel(
-    private val dao: ProductDao
-) : ViewModel() {
+class HomeViewModel : ViewModel() {
     var state by mutableStateOf(HomeState())
         private set
-
-    init {
-        viewModelScope.launch {
-            dao.getAllProducts().collectLatest {
-                state = state.copy(
-                    products = it
-                )
-            }
-        }
-    }
 
     fun changeName(name: String) {
         state = state.copy(
@@ -38,9 +26,7 @@ class HomeViewModel(
     }
 
     fun deleteProduct(product: Product) {
-        viewModelScope.launch {
-            dao.deleteProduct(product)
-        }
+
     }
 
     fun editProduct(product: Product) {
@@ -58,9 +44,7 @@ class HomeViewModel(
                 state.productName,
                 state.productPrice.toDouble()
             )
-        viewModelScope.launch {
-            dao.insertProduct(product)
-        }
+        // Insert
         state = state.copy(
             productName = "",
             productPrice = "",
