@@ -1,70 +1,33 @@
 package com.mkiperszmid.emptyapp.home
 
+import android.app.NotificationManager
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import java.util.UUID
+import com.mkiperszmid.emptyapp.MyApp
+import com.mkiperszmid.emptyapp.R
 
-class HomeViewModel(
-    private val dao: ProductDao
-) : ViewModel() {
+class HomeViewModel : ViewModel() {
     var state by mutableStateOf(HomeState())
         private set
 
-    init {
-        viewModelScope.launch {
-            dao.getAllProducts().collectLatest {
-                state = state.copy(
-                    products = it
-                )
-            }
-        }
+    fun sendNotification(context: Context) {
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        val notification = NotificationCompat.Builder(context, MyApp.CHANNEL_ID)
+            .setContentTitle(state.name)
+            .setContentText("Esto es la descripcion")
+            .setSmallIcon(R.drawable.logo_notification)
+            .setAutoCancel(true)
+            .build()
+        notificationManager.notify(state.name.hashCode(), notification)
     }
 
-    fun changeName(name: String) {
+    fun changeName(text: String) {
         state = state.copy(
-            productName = name
-        )
-    }
-
-    fun changePrice(price: String) {
-        state = state.copy(
-            productPrice = price
-        )
-    }
-
-    fun deleteProduct(product: Product) {
-        viewModelScope.launch {
-            dao.deleteProduct(product)
-        }
-    }
-
-    fun editProduct(product: Product) {
-        state = state.copy(
-            productName = product.name,
-            productPrice = product.price.toString(),
-            productId = product.id
-        )
-    }
-
-    fun createProduct() {
-        val product =
-            Product(
-                state.productId ?: UUID.randomUUID().toString(),
-                state.productName,
-                state.productPrice.toDouble()
-            )
-        viewModelScope.launch {
-            dao.insertProduct(product)
-        }
-        state = state.copy(
-            productName = "",
-            productPrice = "",
-            productId = null
+            name = text
         )
     }
 }
