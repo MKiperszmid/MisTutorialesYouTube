@@ -2,6 +2,9 @@ package com.mkiperszmid.emptyapp.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
@@ -15,7 +18,7 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HomeScreen(
+fun HomeScreenListado(
     viewModel: HomeViewModel,
 ) {
     val state = viewModel.state
@@ -23,14 +26,17 @@ fun HomeScreen(
         refreshing = state.isLoading,
         onRefresh = { viewModel.aumentarValor() },
     )
-    val scrollState = rememberScrollState()
+
+    val elements = (1..400).map { "Item $it" }
+
     Box(
-        modifier = Modifier.fillMaxSize().pullRefresh(refreshState).verticalScroll(
-            scrollState,
-        ),
-        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Text(text = "Valor Actual: ${state.currentValue}")
+        LazyColumn(modifier = Modifier.fillMaxWidth().pullRefresh(refreshState)) {
+            items(elements) {
+                Text(text = it)
+            }
+        }
         PullRefreshIndicator(
             refreshing = state.isLoading,
             state = refreshState,
