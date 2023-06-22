@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.mkiperszmid.emptyapp.home.HomeScreen
-import com.mkiperszmid.emptyapp.home.HomeScreenListado
 import com.mkiperszmid.emptyapp.home.HomeViewModel
 import com.mkiperszmid.emptyapp.ui.theme.EmptyAppTheme
 
@@ -31,8 +30,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     })
-                    HomeScreenListado(viewModel)
-
+                    HomeScreen(viewModel = viewModel)
                 }
             }
         }
